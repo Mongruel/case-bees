@@ -1,0 +1,18 @@
+{
+	"name": "ls_api_breweries",
+	"properties": {
+		"description": "Connection to  Open Brewery DB API.",
+		"parameters": {
+			"endpoint": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://api.openbrewerydb.org/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
