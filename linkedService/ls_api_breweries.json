@@ -10,7 +10,7 @@
 		"annotations": [],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://api.openbrewerydb.org/",
+			"url": "@{concat('https://api.openbrewerydb.org/', linkedService().endpoint)}",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
