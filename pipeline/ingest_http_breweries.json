@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "ingest_http_breweries",
 	"properties": {
 		"activities": [
 			{
