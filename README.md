@@ -36,6 +36,26 @@ Transformations are executed in Databricks using Databrikcs Jobs and run daily, 
 
 No significante changes were made in the dataframe. Except column name changes, switching null values with 'Not informed' and removing 2 null columns.
 
+## Cloud Setup
+This project was made using Azure cloud.
+Resources necessary to run:
+- Azure Key Vault
+- Azure Data Factory
+- Azure Databricks
+- Azure Storage Account
+
+1. Setup Azure Storage account and create a folder directory "brz/breweries";
+2. Setup Azure Key Vault and add a secret with Storage Account key;
+3. Setup Azure Data Factory
+    - Create 2 linked services. One to get data from HTTP and one to send data to Azure Storage. Create variables as you see fit;
+    - Create 2 datasets, one to use with HTTP and one to send it to Azure Storage. Create variables as you see fit;
+    - Create a pipeline that get data from provided URL and sends it to the Storage created in the path "brz/breweries/file_name-YYYY-mm-DD" model. Create variables as you see fit;
+    - Schedule it to run everyday at 5 am UTC.
+4. Setup Databricks resource
+    - Link Databricks to Azure Key Vault;
+    - Create notebookts treating the data;
+    - Schedule jobs brz_svr and svr_gld to run respective pipelines.
+
 ## Challenges and improvements
 - Better understanding of the business case;
 - Implement data quality;
