@@ -146,7 +146,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/ingest_http_breweries')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -213,6 +213,38 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/http_dataset_breweries')]",
 				"[concat(variables('factoryId'), '/datasets/st_json_dataset_stbees')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/daily_8am')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ingest_http_breweries",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 15,
+						"startTime": "2024-06-13T07:00:00Z",
+						"endTime": "2024-06-25T01:17:00Z",
+						"timeZone": "UTC",
+						"schedule": {}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ingest_http_breweries')]"
 			]
 		}
 	]

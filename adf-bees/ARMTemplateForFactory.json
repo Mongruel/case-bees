@@ -25,51 +25,74 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_api_breweries')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/ingest_http_breweries')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Connection to  Open Brewery DB API.",
-				"parameters": {
-					"endpoint": {
-						"type": "string"
+				"activities": [
+					{
+						"name": "http_to_blob",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "http_dataset_breweries",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "st_json_dataset_stbees",
+								"type": "DatasetReference",
+								"parameters": {
+									"layer": "brz",
+									"folder": "breweries",
+									"file_name": "breweries"
+								}
+							}
+						]
 					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
-				"annotations": [],
-				"type": "HttpServer",
-				"typeProperties": {
-					"url": "[parameters('ls_api_breweries_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": true,
-					"authenticationType": "Anonymous"
-				}
+				"annotations": []
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_st_bees')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to st_bees Data Lake Storage",
-				"parameters": {
-					"layer": {
-						"type": "string"
-					},
-					"folder": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ls_st_bees_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ls_st_bees_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/http_dataset_breweries')]",
+				"[concat(variables('factoryId'), '/datasets/st_json_dataset_stbees')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/http_dataset_breweries')]",
@@ -146,73 +169,82 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/ls_api_breweries')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
+				"description": "Connection to  Open Brewery DB API.",
+				"parameters": {
+					"endpoint": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_api_breweries_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_st_bees')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to st_bees Data Lake Storage",
+				"parameters": {
+					"layer": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_st_bees_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_st_bees_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/daily_8am')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
 					{
-						"name": "http_to_blob",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
+						"pipelineReference": {
+							"referenceName": "ingest_http_breweries",
+							"type": "PipelineReference"
 						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET"
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "http_dataset_breweries",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "st_json_dataset_stbees",
-								"type": "DatasetReference",
-								"parameters": {
-									"layer": "brz",
-									"folder": "breweries",
-									"file_name": "breweries"
-								}
-							}
-						]
+						"parameters": {}
 					}
 				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 15,
+						"startTime": "2024-06-13T07:00:00Z",
+						"endTime": "2024-06-25T01:17:00Z",
+						"timeZone": "UTC",
+						"schedule": {}
+					}
+				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/http_dataset_breweries')]",
-				"[concat(variables('factoryId'), '/datasets/st_json_dataset_stbees')]"
+				"[concat(variables('factoryId'), '/pipelines/ingest_http_breweries')]"
 			]
 		}
 	]
