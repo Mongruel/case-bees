@@ -1,5 +1,5 @@
 # Databricks notebook source
-from pyspark.sql.functions import *
+from pyspark.sql.functions import col, current_date, when, lit, concat
 
 # COMMAND ----------
 
@@ -17,10 +17,6 @@ dt = df.withColumn("current_date",current_date()).collect()[0][1]
 # COMMAND ----------
 
 df = spark.read.json(f"/mnt/brz/breweries/breweries{dt}")
-
-# COMMAND ----------
-
-display(df)
 
 # COMMAND ----------
 
@@ -47,8 +43,8 @@ df_renamed = df_renamed.withColumns({
 
 # COMMAND ----------
 
-display(df_renamed)
+df_renamed.write.partitionBy('state').format("delta").save(f"/mnt/svr/breweries/brewerie{dt}")
 
 # COMMAND ----------
 
-df_renamed.write.partitionBy('state').format("delta").save(f"/mnt/svr/breweries/brewerie{dt}")
+dbutils.fs.unmount("/mnt/brz")
