@@ -1,7 +1,7 @@
 # Case Bees
 
 ## Scope
-Data Engineer case project for Bees.
+Data Engineer case projec.
 
 ## Architecture
 
